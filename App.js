@@ -14,6 +14,7 @@ import * as Font from "expo-font";
 import { Feather } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import Checkbox from "expo-checkbox";
 
 const fetchFonts = () => {
   return Font.loadAsync({
@@ -46,7 +47,7 @@ export default function App() {
   return (
     <>
       <SafeAreaView>
-        <View style={styles.container}>
+        <View style={styles.body}>
           <View style={styles.navbar}>
             <View style={styles.calendar}>
               <FontAwesome5
@@ -70,7 +71,15 @@ export default function App() {
               <Feather name="plus" size={50} color="white" />
             </TouchableOpacity>
           </View>
-          <View style={styles.taskCards}></View>
+          <View style={styles.card}>
+            <Checkbox style={{ margin: 3 }} value={true} color={"#111122"} />
+            <Text style={styles.cardText}>Hardcoded solutions ;)</Text>
+          </View>
+          <View style={styles.card}>
+            <Checkbox style={{ margin: 3 }} value={false} color={"#111122"} />
+            <Text style={styles.cardText}>FastAPI</Text>
+          </View>
+          <View style={styles.card}></View>
         </View>
       </SafeAreaView>
     </>
@@ -78,7 +87,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  body: {
     height: dim.height,
     width: dim.width,
     backgroundColor:
@@ -113,14 +122,14 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   addButtonView: {
-    paddingTop: 0.27 * dim.height, // 28 is total, -1 for the red circle
+    paddingTop: 0.25 * dim.height, // 26 is total, -1 for the red circle
     position: "absolute",
     alignSelf: "center",
     flex: 1,
   },
   navbar: {
     flexDirection: "row",
-    height: 0.08 * dim.height,
+    height: 0.06 * dim.height,
     justifyContent: "space-between",
     backgroundColor: "white",
     // padding: 5,
@@ -141,5 +150,30 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 14,
     fontWeight: "bold",
+  },
+  card: {
+    //* iOS
+    // shadowColor: "black",
+    // shadowOpacity: 0.26,
+    // shadowOffset: {
+    //   height: 2, //towards bottom
+    //   width: 0, // towards right
+    // },
+    marginTop: 45,
+    backgroundColor: "#CC4F64",
+    //* Android
+    elevation: 3,
+    padding: 25, // controls height but why?!
+    margin: 20,
+    height: 95,
+    // paddingHorizontal: 100,
+    borderRadius: 15,
+    // fontSize: 47,
+    flexDirection: "row",
+  },
+  cardText: {
+    fontSize: 20,
+    color: "#212128",
+    fontFamily: "Avenir",
   },
 });
