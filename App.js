@@ -6,11 +6,9 @@ import {
   SafeAreaView,
   Dimensions,
   TouchableOpacity,
-  ScrollView,
   FlatList,
   Modal,
   Alert,
-  TouchableHighlight,
   TextInput,
   KeyboardAvoidingView,
 } from 'react-native';
@@ -75,43 +73,39 @@ export default function App() {
   //https://stackoverflow.com/a/58579462/10934636
   const storeData = async (obj) => {
     try {
-      console.log('inside add to db try block')
+      
       const jsonValue = JSON.stringify(obj);
       await AsyncStorage.setItem(Math.random().toString(), jsonValue);
-      // console.log('data ');
+      
     } catch (e) {
       // saving error
     }
   };
   const readData = async () => {
-    console.log(' inside get keys')
+   
     // let keys_ = [];
     try {
-      console.log(' inside get keys try block')
+      
       let keys = await AsyncStorage.getAllKeys();
-      await console.log('keys are: ', keys)
+      
       await getData(keys)
     } catch (e) {
       // read key error
-      console.log('error in getallkeys')
+      
       console.log(e)
     }
   };
 
   const getData = async (keys) => {
     try {
-      console.log('all keys are: ', keys)
+      
 
       for (let i=0; i<keys.length; i++) {
-        console.log('inside get data for loop')
-        console.log('key is: ', keys[i])
+       
         const jsonValue = await AsyncStorage.getItem(keys[i]);
-        console.log("------------------")
-        console.log(jsonValue);
+     
         data.push(jsonValue != null ? JSON.parse(jsonValue) : null);
-        console.log("------------------")
-        console.log("DATA after get data: ")
-        console.log(data)
+       
       }
     } catch (e) {
       // error reading value
@@ -134,23 +128,14 @@ export default function App() {
   };
 
   const addTaskButtonHandler = async () => {
-    console.log('#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#$#$#$$')
-    console.log('#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#$#$#$$')
-    console.log('#$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#$#$#$$')
     // add new task to database
     if (newTask !== '') {
       // add to db
-      console.log('inside add to db')
       let obj = { key: newTask };
-      console.log('obj is ', obj)
       await storeData(obj);
       await Alert.alert('Task Saved!');
       await readData();
-      //  console.log('global keys are ', keys)
-      //  getData(keys);
-
       await setModalVisible(!modalVisible);
-      await console.log('DATA IS: ', data)
     } else {
       Alert.alert('Please enter a valid task');
     }
