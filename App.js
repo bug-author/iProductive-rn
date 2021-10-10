@@ -1,4 +1,5 @@
 import * as React from "react";
+import { StatusBar } from "expo-status-bar";
 import {
   Text,
   View,
@@ -146,6 +147,7 @@ export default function App() {
   return (
     <>
       <SafeAreaView>
+        <StatusBar style="light" />
         <View style={styles.body}>
           <View style={styles.centeredView}>
             <KeyboardAvoidingView>
