@@ -25,11 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-let data = [
-  { key: "Arabic" },
-  { key: "FastAPI" },
-  { key: "Final Year Project code review" },
-];
+let data = [];
 
 const month = {
   0: "Jan",
@@ -61,26 +57,8 @@ export default function App() {
   const [dataLoaded, setDataLoaded] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);
   const [newTask, setNewTask] = React.useState("");
+  const [isData, setIsData] = React.useState(false);
 
-  // run once in the beginning
-  // React.useEffect( async () => {
-  //   async function readData() {
-  //     try {
-
-  //       let keys = await AsyncStorage.getAllKeys();
-
-  //       await getData(keys)
-  //     } catch (e) {
-  //       // read key error
-
-  //       console.log(e)
-  //     }
-
-  //     readData();
-  //   }
-  // }, [])
-
-  //https://stackoverflow.com/a/58579462/10934636
   const storeData = async (obj) => {
     try {
       const jsonValue = JSON.stringify(obj);
@@ -89,16 +67,15 @@ export default function App() {
       // saving error
     }
   };
+
   const readData = async () => {
-    // let keys_ = [];
     try {
       let keys = await AsyncStorage.getAllKeys();
 
       await getData(keys);
     } catch (e) {
       // read key error
-
-      console.log(e);
+      // console.log(e);
     }
   };
 
@@ -110,11 +87,14 @@ export default function App() {
         data.push(jsonValue != null ? JSON.parse(jsonValue) : null);
 
         // bugfix: duplicated entries
+        // ! does not work
         await removeDuplicatedData(data);
+
+        setIsData(true);
       }
     } catch (e) {
       // error reading value
-      console.log(e);
+      // console.log(e);
     }
   };
   const removeDuplicatedData = async (data) => {
@@ -127,8 +107,8 @@ export default function App() {
     });
 
     data = result;
-    console.log("DATATATTA: ",data);
-    console.log("RESULT: ",result);
+    // console.log("DATATATTA: ",data);
+    // console.log("RESULT: ",result);
   };
   if (!dataLoaded) {
     return (
@@ -138,8 +118,7 @@ export default function App() {
         onError={(err) => console.log(err)}
       />
     );
-  } 
-  
+  }
 
   const plusButtonHandler = () => {
     setModalVisible(true);
@@ -163,6 +142,7 @@ export default function App() {
       Alert.alert("Please enter a valid task");
     }
   };
+
   return (
     <>
       <SafeAreaView>
@@ -249,31 +229,36 @@ export default function App() {
               <Feather name="plus" size={50} color="white" />
             </TouchableOpacity>
           </View>
-          <FlatList
-            data={data}
-            style={styles.flatList}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
-                <TouchableOpacity>
-                  <Text style={styles.cardText}>
-                    {item.key ? item.key : "Undefined"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-          {/*<View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              alignContent: 'center',
-              marginTop: 50,
-            }}>
-            <Text
-              style={{ fontFamily: 'Avenir', fontSize: 20, color: '#DC4F64' }}>
-              NO TASKS FOUND
-            </Text> 
-          </View> */}
+          {isData ? (
+            <FlatList
+              data={data}
+              style={styles.flatList}
+              renderItem={({ item }) => (
+                <View style={styles.card}>
+                  <TouchableOpacity>
+                    <Text style={styles.cardText}>
+                      {item.key ? item.key : "Undefined"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            />
+          ) : (
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                alignContent: "center",
+                marginTop: 50,
+              }}
+            >
+              <Text
+                style={{ fontFamily: "Avenir", fontSize: 20, color: "#DC4F64" }}
+              >
+                NO TASKS FOUND
+              </Text>
+            </View>
+          )}
         </View>
       </SafeAreaView>
     </>
