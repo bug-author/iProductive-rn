@@ -28,18 +28,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 let data = [];
 
 const month = {
-  0: "Jan",
-  1: "Feb",
-  2: "Mar",
-  3: "Apr",
+  0: "January",
+  1: "February",
+  2: "March",
+  3: "April",
   4: "May",
-  5: "Jun",
-  6: "Jul",
-  7: "Aug",
-  8: "Sep",
-  9: "Oct",
-  10: "Nov",
-  11: "Dec",
+  5: "June",
+  6: "July",
+  7: "August",
+  8: "September",
+  9: "October",
+  10: "November",
+  11: "December",
 };
 
 const fetchFonts = () => {
@@ -214,9 +214,24 @@ export default function App() {
                 {currentDay}
               </Text>
             </View>
-
+            <Text
+              style={{
+                fontSize: 15,
+                fontFamily: "Avenir",
+                fontWeight: "bold",
+                paddingTop: 10,
+              }}
+            >
+              {currentMonth}
+            </Text>
             <FontAwesome name="bars" size={45} color="#212128" />
           </View>
+          {/* 
+            //! proposed bug fix for smaller screen devices when calendar icon is
+            //! not properly rendered} 
+          */}
+          {/* <View></View>
+          <View></View> */}
           <View style={styles.header}>
             <Text style={styles.headerText}> Intray </Text>
           </View>
@@ -313,6 +328,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 50,
     height: 50,
+    // alignSelf: "center",
   },
   calendarIcon: {
     position: "absolute",
@@ -321,6 +337,9 @@ const styles = StyleSheet.create({
   date: {
     fontSize: 16,
     fontWeight: "bold",
+    // alignSelf: "center",
+    // alignContent: "center",
+    // justifyContent: "center",
   },
   card: {
     margin: 45,
