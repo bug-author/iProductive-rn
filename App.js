@@ -1,4 +1,5 @@
-import * as React from "react";
+import * as React from 'react';
+import { StatusBar } from 'expo-status-bar';
 import {
   Text,
   View,
@@ -11,135 +12,74 @@ import {
   Alert,
   TextInput,
   KeyboardAvoidingView,
-} from "react-native";
+} from 'react-native';
 
-import Constants from "expo-constants";
-import AppLoading from "expo-app-loading";
-import * as Font from "expo-font";
-import { BlurView } from "expo-blur";
+import Constants from 'expo-constants';
+import AppLoading from 'expo-app-loading';
+import * as Font from 'expo-font';
+import { BlurView } from 'expo-blur';
 
-import { Feather } from "@expo/vector-icons";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { FontAwesome } from "@expo/vector-icons";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-let data = [
-  { key: "Arabic" },
-  { key: "FastAPI" },
-  { key: "Final Year Project code review" },
-];
+let data = [];
 
 const month = {
-  0: "Jan",
-  1: "Feb",
-  2: "Mar",
-  3: "Apr",
-  4: "May",
-  5: "Jun",
-  6: "Jul",
-  7: "Aug",
-  8: "Sep",
-  9: "Oct",
-  10: "Nov",
-  11: "Dec",
+  0: 'January',
+  1: 'February',
+  2: 'March',
+  3: 'April',
+  4: 'May',
+  5: 'June',
+  6: 'July',
+  7: 'August',
+  8: 'September',
+  9: 'October',
+  10: 'November',
+  11: 'December',
 };
 
 const fetchFonts = () => {
   return Font.loadAsync({
-    Avenir: require("./assets/fonts/Avenir-Medium.ttf"),
+    Avenir: require('./assets/fonts/Avenir-Medium.ttf'),
   });
 };
-const dim = Dimensions.get("screen");
+const dim = Dimensions.get('screen');
 
 const currentDate = new Date();
 const currentDay = currentDate.getDate();
 const currentMonth = month[currentDate.getMonth()];
 
 export default function App() {
-  const [dataLoaded, setDataLoaded] = React.useState(false);
+  const [fontLoaded, setFontLoaded] = React.useState(false);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [newTask, setNewTask] = React.useState("");
+  const [newTask, setNewTask] = React.useState('');
+  const [data, setData] = React.useState([]);
 
-  // run once in the beginning
-  // React.useEffect( async () => {
-  //   async function readData() {
-  //     try {
+  React.useEffect(()=>{
+    readTasks();
+  }, [])
 
-  //       let keys = await AsyncStorage.getAllKeys();
-
-  //       await getData(keys)
-  //     } catch (e) {
-  //       // read key error
-
-  //       console.log(e)
-  //     }
-
-  //     readData();
-  //   }
-  // }, [])
-
-  //https://stackoverflow.com/a/58579462/10934636
-  const storeData = async (obj) => {
-    try {
-      const jsonValue = JSON.stringify(obj);
-      await AsyncStorage.setItem(Math.random().toString(), jsonValue);
-    } catch (e) {
-      // saving error
+  const readTasks = async () => {
+    const result = await AsyncStorage.getItem('tasks');
+    if (result != null) {
+      setData(JSON.parse(result))
     }
-  };
-  const readData = async () => {
-    // let keys_ = [];
-    try {
-      let keys = await AsyncStorage.getAllKeys();
+  }
 
-      await getData(keys);
-    } catch (e) {
-      // read key error
-
-      console.log(e);
-    }
-  };
-
-  const getData = async (keys) => {
-    try {
-      for (let i = 0; i < keys.length; i++) {
-        const jsonValue = await AsyncStorage.getItem(keys[i]);
-
-        data.push(jsonValue != null ? JSON.parse(jsonValue) : null);
-
-        // bugfix: duplicated entries
-        await removeDuplicatedData(data);
-      }
-    } catch (e) {
-      // error reading value
-      console.log(e);
-    }
-  };
-  const removeDuplicatedData = async (data) => {
-    let result = data.filter((task, index) => {
-      return (
-        data.findIndex((currentTask) => {
-          return currentTask.key == task.key;
-        }) == index
-      );
-    });
-
-    data = result;
-    console.log("DATATATTA: ",data);
-    console.log("RESULT: ",result);
-  };
-  if (!dataLoaded) {
+  if (!fontLoaded) {
     return (
       <AppLoading
         startAsync={fetchFonts}
-        onFinish={() => setDataLoaded(true)}
+        onFinish={() => setFontLoaded(true)}
         onError={(err) => console.log(err)}
       />
     );
-  } 
-  
+  }
 
   const plusButtonHandler = () => {
     setModalVisible(true);
@@ -150,21 +90,26 @@ export default function App() {
   };
 
   const addTaskButtonHandler = async () => {
-    // add new task to database
-    if (newTask !== "") {
+    if (newTask !== '') {
       // add to db
-      let obj = { key: newTask };
-      await storeData(obj);
-      await Alert.alert("Task Saved!");
-      await readData();
-      await setModalVisible(!modalVisible);
-      setNewTask("");
+      const task = {id: Date.now(), time: Date.now(), task: newTask};
+      const updatedTasks = [...data, task];
+      setData(updatedTasks);
+      await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+      setModalVisible(!modalVisible);
+      setNewTask('');
+      
     } else {
-      Alert.alert("Please enter a valid task");
+      Alert.alert('Please enter a valid task');
     }
   };
+
   return (
     <>
+    <StatusBar 
+    style="dark"
+    backgroundColor="white"
+    />
       <SafeAreaView>
         <View style={styles.body}>
           <View style={styles.centeredView}>
@@ -172,19 +117,16 @@ export default function App() {
               <Modal
                 animationType="fade"
                 transparent={true}
-                visible={modalVisible}
-              >
+                visible={modalVisible}>
                 <BlurView
                   style={styles.centeredView}
                   tint="dark"
-                  intensity={100}
-                >
+                  intensity={100}>
                   <View style={styles.modalView}>
                     <TouchableOpacity
                       activeOpacity={1}
                       onPress={closeModalHandler}
-                      style={{ alignSelf: "flex-end" }}
-                    >
+                      style={{ alignSelf: 'flex-end' }}>
                       {/** alignSelf controls how a child aligns in the cross direction, overriding the alignItems of the parent.
                        * default: columns = cross ; rows = main
                        */}
@@ -199,7 +141,7 @@ export default function App() {
 
                     <TextInput
                       style={{
-                        borderColor: "#212128",
+                        borderColor: '#212128',
                         borderBottomWidth: 2,
                         width: 0.4 * dim.width,
                         fontSize: 15,
@@ -210,11 +152,10 @@ export default function App() {
                     <TouchableOpacity
                       style={{
                         ...styles.openButton,
-                        backgroundColor: "#DC4F64",
+                        backgroundColor: '#DC4F64',
                         marginVertical: 20,
                       }}
-                      onPress={addTaskButtonHandler}
-                    >
+                      onPress={addTaskButtonHandler}>
                       <Text style={styles.textStyle}>Add</Text>
                     </TouchableOpacity>
                   </View>
@@ -234,9 +175,21 @@ export default function App() {
                 {currentDay}
               </Text>
             </View>
-
+            <Text
+              style={{
+                fontSize: 17,
+                fontFamily: 'Avenir',
+                fontWeight: 'bold',
+                paddingTop: 10,
+              }}>
+              {currentMonth}
+            </Text>
             <FontAwesome name="bars" size={45} color="#212128" />
           </View>
+          {/* 
+            //! proposed bug fix for smaller screen devices when calendar icon is
+            //! not properly rendered} 
+          */}
           <View style={styles.header}>
             <Text style={styles.headerText}> Intray </Text>
           </View>
@@ -244,36 +197,42 @@ export default function App() {
             <TouchableOpacity
               style={styles.addButton}
               activeOpacity={1}
-              onPress={plusButtonHandler}
-            >
+              onPress={plusButtonHandler}>
               <Feather name="plus" size={50} color="white" />
             </TouchableOpacity>
           </View>
-          <FlatList
-            data={data}
-            style={styles.flatList}
-            renderItem={({ item }) => (
-              <View style={styles.card}>
-                <TouchableOpacity>
-                  <Text style={styles.cardText}>
-                    {item.key ? item.key : "Undefined"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-          {/*<View
-            style={{
-              alignItems: 'center',
-              justifyContent: 'center',
-              alignContent: 'center',
-              marginTop: 50,
-            }}>
-            <Text
-              style={{ fontFamily: 'Avenir', fontSize: 20, color: '#DC4F64' }}>
-              NO TASKS FOUND
-            </Text> 
-          </View> */}
+          {data.length > 0 ? (
+            <FlatList
+              data={data}
+              style={styles.flatList}
+              renderItem={({ item }) => (
+                <View style={styles.card}>
+                  <TouchableOpacity>
+                    <Text style={styles.cardText}>
+                      {item.task ? item.task : 'Undefined'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            />
+          ) : (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                alignContent: 'center',
+                marginTop: 50,
+              }}>
+              <Text
+                style={{
+                  fontFamily: 'Avenir',
+                  fontSize: 20,
+                  color: '#DC4F64',
+                }}>
+                NO TASKS FOUND
+              </Text>
+            </View>
+          )}
         </View>
       </SafeAreaView>
     </>
@@ -284,76 +243,75 @@ const styles = StyleSheet.create({
   body: {
     height: dim.height,
     width: dim.width,
-    backgroundColor:
-      dim.height == Constants.statusBarHeight ? "white" : "#212128",
-    paddingTop: Constants.statusBarHeight,
+    backgroundColor:'#212128',
   },
 
   header: {
     height: 0.2 * dim.height,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderBottomRightRadius: 50,
     borderBottomLeftRadius: 50,
   },
   headerText: {
     fontSize: 60,
-    color: "#212128",
-    fontFamily: "Avenir",
+    color: '#212128',
+    fontFamily: 'Avenir',
   },
   addButton: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 60,
     height: 60,
-    backgroundColor: "#DC4F64",
+    backgroundColor: '#DC4F64',
     borderRadius: 30,
   },
   addButtonView: {
-    paddingTop: 0.29 * dim.height,
-    position: "absolute",
-    alignSelf: "center",
+    paddingTop: 0.26 * dim.height,
+    position: 'absolute',
+    alignSelf: 'center',
     flex: 1,
   },
   navbar: {
-    flexDirection: "row",
+    flexDirection: 'row',
     height: 0.07 * dim.height,
-    justifyContent: "space-between",
-    backgroundColor: "white",
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
     paddingHorizontal: 10,
   },
 
   calendar: {
-    position: "relative",
-    alignItems: "center",
-    justifyContent: "center",
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 50,
     height: 50,
+    // alignSelf: "center",
   },
   calendarIcon: {
-    position: "absolute",
+    position: 'absolute',
   },
 
   date: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   card: {
-    margin: 45,
-    backgroundColor: "#CC4F64",
+
+    backgroundColor: '#CC4F64',
     //* Android
     elevation: 3,
     // padding: 20, // controls height but why?!
     margin: 20,
     height: 95,
     borderRadius: 15,
-    flexDirection: "row",
-    alignItems: "center", // yeahhh
+    flexDirection: 'row',
+    alignItems: 'center', // yeahhh
     paddingLeft: 15,
   },
   cardText: {
     fontSize: 20,
-    color: "#212128",
-    fontFamily: "Avenir",
+    color: '#212128',
+    fontFamily: 'Avenir',
   },
   flatList: {
     marginVertical: 30,
@@ -362,18 +320,18 @@ const styles = StyleSheet.create({
   ////
   centeredView: {
     // flex: 1, // YEINNNNNNNNNNN
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 22,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
   modalView: {
     margin: 0.3 * dim.height,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 15,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -382,25 +340,25 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     width: 0.8 * dim.width, // good
-    borderColor: "#212128",
+    borderColor: '#212128',
   },
   openButton: {
-    backgroundColor: "#F194FF",
+    backgroundColor: '#F194FF',
     borderRadius: 20,
     padding: 10, // space inside
     elevation: 2,
     width: 0.2 * dim.width,
   },
   textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center",
-    color: "#212128",
-    fontFamily: "Avenir",
+    textAlign: 'center',
+    color: '#212128',
+    fontFamily: 'Avenir',
     fontSize: 25,
   },
 });
