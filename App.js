@@ -60,16 +60,16 @@ export default function App() {
   const [newTask, setNewTask] = React.useState('');
   const [data, setData] = React.useState([]);
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     readTasks();
-  }, [])
+  }, []);
 
   const readTasks = async () => {
     const result = await AsyncStorage.getItem('tasks');
     if (result != null) {
-      setData(JSON.parse(result))
+      setData(JSON.parse(result));
     }
-  }
+  };
 
   if (!fontLoaded) {
     return (
@@ -92,24 +92,39 @@ export default function App() {
   const addTaskButtonHandler = async () => {
     if (newTask !== '') {
       // add to db
-      const task = {id: Date.now(), time: Date.now(), task: newTask};
+      const task = { id: Date.now(), time: Date.now(), task: newTask };
       const updatedTasks = [...data, task];
       setData(updatedTasks);
       await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
       setModalVisible(!modalVisible);
       setNewTask('');
-      
     } else {
       Alert.alert('Please enter a valid task');
     }
   };
+  const delTask = async (id) => {
+    const result = await AsyncStorage.getItem('tasks');
 
+    let tasks = [];
+    if (result!==null) tasks = JSON.parse(result);
+
+    const updatedTasks = tasks.filter(task => task.id !== id);
+
+    await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+
+    setData(updatedTasks);
+     
+
+  }
+  const delAlert = (id) => {
+    Alert.alert('Delete Task?', 'Task will be deleted permanently!', [
+      // this array has options to show inside the alert
+      { text: 'Delete', onPress: () => delTask(id) },
+    ]);
+  };
   return (
     <>
-    <StatusBar 
-    style="dark"
-    backgroundColor="white"
-    />
+      <StatusBar style="dark" backgroundColor="white" />
       <SafeAreaView>
         <View style={styles.body}>
           <View style={styles.centeredView}>
@@ -206,13 +221,13 @@ export default function App() {
               data={data}
               style={styles.flatList}
               renderItem={({ item }) => (
+                  <TouchableOpacity onPress={() => delAlert(item.id)}>
                 <View style={styles.card}>
-                  <TouchableOpacity>
                     <Text style={styles.cardText}>
                       {item.task ? item.task : 'Undefined'}
                     </Text>
-                  </TouchableOpacity>
                 </View>
+                  </TouchableOpacity>
               )}
             />
           ) : (
@@ -243,7 +258,7 @@ const styles = StyleSheet.create({
   body: {
     height: dim.height,
     width: dim.width,
-    backgroundColor:'#212128',
+    backgroundColor: '#212128',
   },
 
   header: {
@@ -277,6 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: 'white',
     paddingHorizontal: 10,
+    paddingTop:10,
   },
 
   calendar: {
@@ -296,7 +312,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   card: {
-
     backgroundColor: '#CC4F64',
     //* Android
     elevation: 3,
