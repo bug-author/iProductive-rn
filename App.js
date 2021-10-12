@@ -266,6 +266,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderBottomRightRadius: 50,
     borderBottomLeftRadius: 50,
+    zIndex:-1
   },
   headerText: {
     fontSize: 60,
